@@ -7,4 +7,4 @@ add_executable(myFTAClient
         Client.c)
 add_executable(myFTAServer
         Server.c
-        Common/SocketFunction.c)
+        ServerFunction/StartServer.c)

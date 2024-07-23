@@ -4,10 +4,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include "Common/SocketFunction.h"
+#include "ServerFunction/StartServer.h"
 #include "Server.h"
 #include <string.h>
-#define PORT 8080
 
 int main(int argc, char *argv[])
 {
