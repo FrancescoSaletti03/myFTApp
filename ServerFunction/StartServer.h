@@ -6,4 +6,5 @@
 #define STARTSOCKET_H
 #include <netinet/in.h>
 int startSocket(struct sockaddr_in address);
+void workDirectory(char *pathDirectory);
 #endif //STARTSOCKET_H

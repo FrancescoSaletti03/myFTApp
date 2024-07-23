@@ -8,6 +8,11 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <dirent.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 int startSocket(struct sockaddr_in address)
 {
 
@@ -42,4 +47,18 @@ int startSocket(struct sockaddr_in address)
         exit(EXIT_FAILURE);
     }
     return new_socket;
+}
+
+void workDirectory(char *pathDirectory)
+{
+ DIR* directory = opendir(pathDirectory);
+ if(ENOENT == errno)
+ {
+     mkdir(pathDirectory,0777);
+ }
+ else
+ {
+     closedir(directory);
+ }
+    chdir(pathDirectory);
 }
