@@ -6,4 +6,5 @@ set(CMAKE_C_STANDARD 11)
 add_executable(myFTAClient
         Client.c)
 add_executable(myFTAServer
-        Server.c)
+        Server.c
+        Common/SocketFunction.c)

@@ -86,6 +86,12 @@ build CMakeFiles/myFTAServer.dir/Server.c.o: C_COMPILER__myFTAServer_unscanned_D
   OBJECT_DIR = CMakeFiles/myFTAServer.dir
   OBJECT_FILE_DIR = CMakeFiles/myFTAServer.dir
 
+build CMakeFiles/myFTAServer.dir/Common/SocketFunction.c.o: C_COMPILER__myFTAServer_unscanned_Debug /home/francesco-saletti/CLionProjects/myFTA/Common/SocketFunction.c || cmake_object_order_depends_target_myFTAServer
+  DEP_FILE = CMakeFiles/myFTAServer.dir/Common/SocketFunction.c.o.d
+  FLAGS = -g -std=gnu11 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles/myFTAServer.dir
+  OBJECT_FILE_DIR = CMakeFiles/myFTAServer.dir/Common
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target myFTAServer
@@ -94,7 +100,7 @@ build CMakeFiles/myFTAServer.dir/Server.c.o: C_COMPILER__myFTAServer_unscanned_D
 #############################################
 # Link the executable myFTAServer
 
-build myFTAServer: C_EXECUTABLE_LINKER__myFTAServer_Debug CMakeFiles/myFTAServer.dir/Server.c.o
+build myFTAServer: C_EXECUTABLE_LINKER__myFTAServer_Debug CMakeFiles/myFTAServer.dir/Server.c.o CMakeFiles/myFTAServer.dir/Common/SocketFunction.c.o
   FLAGS = -g
   OBJECT_DIR = CMakeFiles/myFTAServer.dir
   POST_BUILD = :
