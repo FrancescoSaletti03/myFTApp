@@ -54,7 +54,11 @@ void workDirectory(char *pathDirectory)
  DIR* directory = opendir(pathDirectory);
  if(ENOENT == errno)
  {
-     mkdir(pathDirectory,0777);
+     if(mkdir(pathDirectory,0777) < 0)
+     {
+         perror("path per la creazione della cartella non valido");
+         exit(EXIT_FAILURE);
+     }
  }
  else
  {

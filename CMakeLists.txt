@@ -4,7 +4,11 @@ project(myFTA C)
 set(CMAKE_C_STANDARD 11)
 
 add_executable(myFTAClient
-        Client.c)
+        Client.c
+        CommonFunction/TransferFunction.c
+        CommonFunction/TransferFunction.h)
 add_executable(myFTAServer
         Server.c
-        ServerFunction/StartServer.c)
+        ServerFunction/StartServer.c
+        CommonFunction/TransferFunction.c
+        CommonFunction/TransferFunction.h)

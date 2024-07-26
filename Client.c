@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
             printf("formato non valido \n");
             exit(EXIT_FAILURE);
         }
+
     }
 
     if(on == NULL)
@@ -73,6 +74,12 @@ int main(int argc, char *argv[])
         printf("\nfallimento connessione\n ");
         return  -1;
     }
-    send(client_socket,stringa,sizeof(char)*1024,0);
+    if(boolRead)
+    {
+        char *arg[2];
+        *arg[0]='r';
+        arg[1]=on;
+
+    }
     close(client_socket);
 }
