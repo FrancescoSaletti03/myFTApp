@@ -8,9 +8,10 @@
 #define ERR_FILE_NOTFOUND 1
 #define CONFIRM 0
 #define BUFFER_SIZE 51200
+enum OPERATION{WRITE,READ,LIST};
 
-void read(int socket,char *path);
-void write(int socket, char *path);
+void readFile(int socket,char *path);
+void writeFile(int socket, char *path);
 char *directoryName(const char *path);
 long getFileSize(const char *filename);
 

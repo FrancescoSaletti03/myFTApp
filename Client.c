@@ -10,9 +10,12 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
+#include <linux/limits.h>
+
+#include "CommonFunction/TransferFunction.h"
 int main(int argc, char *argv[])
 {
-    int boolWrite = 0,boolRead = 0;
+    enum OPERATION operazione;
     char *indirizzoIP = NULL, *porta = NULL, *from = NULL, *on = NULL;
     if(!(argc == 10 || argc == 8))
     {
@@ -22,8 +25,8 @@ int main(int argc, char *argv[])
 
     for(int i = 0; i < argc; i = i + 1)
     {
-        if(strcmp(argv[i],"-w") == 0 && (i+1 >= argc || argv[i+1][0] == '-')) { boolWrite = 1; }
-        else if (strcmp(argv[i],"-r") == 0 && (i+1 >= argc || argv[i+1][0] == '-')) { boolRead = 1; }
+        if(strcmp(argv[i],"-w") == 0 && (i+1 >= argc || argv[i+1][0] == '-')) { operazione = WRITE; }
+        else if (strcmp(argv[i],"-r") == 0 && (i+1 >= argc || argv[i+1][0] == '-')) { operazione = READ; }
         else if (strcmp(argv[i],"-a") == 0 && i+1 < argc && argv[i+1][0] != '-') { indirizzoIP = argv[i+1]; }
         else if (strcmp(argv[i],"-p") == 0 && i+1 < argc && argv[i+1][0] != '-') { porta = argv[i+1]; }
         else if (strcmp(argv[i],"-f") == 0 && i+1 < argc && argv[i+1][0] != '-') { from = argv[i+1]; }
@@ -44,7 +47,6 @@ int main(int argc, char *argv[])
 
 
     int client_socket,stato;
-    char stringa[] = "Ciao";
     struct sockaddr_in sAddress;
 
     socklen_t aAddresslen = sizeof(sAddress);
@@ -74,12 +76,18 @@ int main(int argc, char *argv[])
         printf("\nfallimento connessione\n ");
         return  -1;
     }
-    if(boolRead)
-    {
-        char *arg[2];
-        *arg[0]='r';
-        arg[1]=on;
 
+    send(client_socket,&operazione,sizeof(enum OPERATION),0);
+
+    if(operazione == READ)
+    {
+        send(client_socket,from,sizeof(char)*PATH_MAX,0);
+        writeFile(client_socket,on);
+    }
+    else if (operazione == WRITE)
+    {
+        send(client_socket,on,sizeof(char)*PATH_MAX,0);
+        readFile(client_socket,from);
     }
     close(client_socket);
 }

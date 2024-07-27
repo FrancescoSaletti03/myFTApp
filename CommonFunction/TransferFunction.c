@@ -12,7 +12,7 @@
 #include <dirent.h>
 #include <errno.h>
 
-void read(int socket,char *path)
+void readFile(int socket,char *path)
 {
     int *flag = malloc(sizeof(int));
     unsigned char buffer[BUFFER_SIZE];
@@ -37,22 +37,24 @@ void read(int socket,char *path)
         return;
     }
 
-    long *size = malloc(sizeof(long));
-    *size = getFileSize(path);
-    send(socket,size,sizeof(long),0);
-
-    size_t n;
-    do
+    long size = getFileSize(path);
+    send(socket,&size,sizeof(long),0);
+    //controllo se c'è spazio su chi scrive
+    //size_t n;
+    while(fread(buffer,sizeof(char),BUFFER_SIZE,file))
     {
-        n = fread(buffer,sizeof(char),BUFFER_SIZE,file);
         send(socket,buffer,BUFFER_SIZE,0);
     }
-    while(n != BUFFER_SIZE);
+    /*do
+    {
+        fread(buffer,sizeof(char),BUFFER_SIZE,file);
+        send(socket,buffer,BUFFER_SIZE,0);
+    }
+    while(!feof(file));*/
     fclose(file);
-    return;
 }
 
-void write(int socket, char *path)
+void writeFile(int socket, char *path)
 {
     int *flag = malloc(sizeof(int));
     unsigned char buffer[BUFFER_SIZE];
@@ -70,20 +72,29 @@ void write(int socket, char *path)
     {
         *flag = ERR_DIRECTORY_NOTFOUND;
         send(socket,flag,sizeof(int),0);
+        printf("\nDirectory Non Trovata\n");
+        return;
     }
+    *flag = CONFIRM;
+    send(socket,flag,sizeof(int),0);
 
     FILE *file = fopen(path,"wb");
-
-    long *size = malloc(sizeof(long));
-    recv(socket,size,sizeof(long),0);
-
+    if(file == NULL)
+    {
+        printf("Errore creazione file");
+        return;
+    }
+    long size;
+    recv(socket,&size,sizeof(long),0);
+    //funzione che mi calcola lo spazio rimanente e invia una conferma o un errore
     long n = 0;
     do
     {
-        recv(socket,buffer,BUFFER_SIZE,0);
-        n = n + fwrite(buffer,sizeof(char),BUFFER_SIZE,file);
+        bzero(buffer,BUFFER_SIZE);
+        n += recv(socket,buffer,BUFFER_SIZE,0);
+        fwrite(buffer,sizeof(char),BUFFER_SIZE,file);
     }
-    while(n < *size);
+    while(n < size);
     fclose(file);
 
     printf("\nRicezione Avvenuta\n");
