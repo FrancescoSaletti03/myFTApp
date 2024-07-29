@@ -86,7 +86,9 @@ int main(int argc, char *argv[])
     }
     else if (operazione == WRITE)
     {
-        send(client_socket,on,sizeof(char)*PATH_MAX,0);
+        size_t size = strlen(on);
+        send(client_socket, &size, sizeof(size_t),0);
+        send(client_socket,on, strlen(on),0);
         readFile(client_socket,from);
     }
     close(client_socket);

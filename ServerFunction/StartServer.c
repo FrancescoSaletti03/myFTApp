@@ -51,18 +51,18 @@ int startSocket(struct sockaddr_in address)
 
 void workDirectory(char *pathDirectory)
 {
- DIR* directory = opendir(pathDirectory);
- if(ENOENT == errno)
- {
-     if(mkdir(pathDirectory,0777) < 0)
+     DIR* directory = opendir(pathDirectory);
+     if(ENOENT == errno)
      {
-         perror("path per la creazione della cartella non valido");
-         exit(EXIT_FAILURE);
+         if(mkdir(pathDirectory,0777) < 0)
+         {
+             perror("path per la creazione della cartella non valido");
+             exit(EXIT_FAILURE);
+         }
      }
- }
- else
- {
-     closedir(directory);
- }
-    chdir(pathDirectory);
+     else
+     {
+         closedir(directory);
+     }
+     chdir(pathDirectory);
 }

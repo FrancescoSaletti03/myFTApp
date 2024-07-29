@@ -23,7 +23,7 @@ void readFile(int socket,char *path)
     {
         *flag = ERR_FILE_NOTFOUND;
         send(socket,flag,sizeof(int),0);
-        printf("\nFile Non Trovato\n");
+        perror("\nFile Non Trovato\n");
         return;
     }
 
