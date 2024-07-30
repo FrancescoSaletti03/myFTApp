@@ -9,8 +9,8 @@
 #include <libgen.h>
 #include <string.h>
 #include <unistd.h>
-#include <dirent.h>
-#include <errno.h>
+#include <sys/stat.h>
+#include <sys/statvfs.h>
 
 void readFile(int socket,char *path)
 {
@@ -39,18 +39,22 @@ void readFile(int socket,char *path)
 
     long size = getFileSize(path);
     send(socket,&size,sizeof(long),0);
-    //controllo se c'è spazio su chi scrive
-    //size_t n;
-    while(fread(buffer,sizeof(char),BUFFER_SIZE,file))
+
+    size_t n;
+    while((n = fread(buffer,sizeof(char),BUFFER_SIZE,file)) > 0 )
     {
-        send(socket,buffer,BUFFER_SIZE,0);
+        send(socket,buffer,n,0);
+        bzero(buffer,BUFFER_SIZE);
     }
-    /*do
+
+    recv(socket,flag,sizeof(int),0);
+    if(*flag == ERR_MEMORY_FULL)
     {
-        fread(buffer,sizeof(char),BUFFER_SIZE,file);
-        send(socket,buffer,BUFFER_SIZE,0);
+        printf("\nMemoria Piena\n");
+        return;
     }
-    while(!feof(file));*/
+
+    printf("\ntrasmissione avvenuta\n");
     fclose(file);
 }
 
@@ -59,7 +63,7 @@ void writeFile(int socket, char *path)
     int *flag = malloc(sizeof(int));
     unsigned char buffer[BUFFER_SIZE];
     char *dir =directoryName(path);
-
+    struct stat info;
     recv(socket,flag,sizeof(int),0);
     if(*flag == ERR_FILE_NOTFOUND)
     {
@@ -67,14 +71,14 @@ void writeFile(int socket, char *path)
         return;
     }
 
-    opendir(dir);
-    if(ENOENT == errno)
+    if(stat(dir,&info) != 0)
     {
         *flag = ERR_DIRECTORY_NOTFOUND;
         send(socket,flag,sizeof(int),0);
         printf("\nDirectory Non Trovata\n");
         return;
     }
+
     *flag = CONFIRM;
     send(socket,flag,sizeof(int),0);
 
@@ -86,13 +90,20 @@ void writeFile(int socket, char *path)
     }
     long size;
     recv(socket,&size,sizeof(long),0);
-    //funzione che mi calcola lo spazio rimanente e invia una conferma o un errore
-    long n = 0;
+    if(checkMemory(size) == 0)
+    {
+        *flag = ERR_MEMORY_FULL;
+        send(socket,flag,sizeof(int),0);
+        printf("\nMemoria Piena\n");
+        return;
+    }
+    size_t n = 0,temp;
     do
     {
+        temp = recv(socket,buffer,BUFFER_SIZE,0);
+        fwrite(buffer,sizeof(char),temp,file);
+        n+=temp;
         bzero(buffer,BUFFER_SIZE);
-        n += recv(socket,buffer,BUFFER_SIZE,0);
-        fwrite(buffer,sizeof(char),BUFFER_SIZE,file);
     }
     while(n < size);
     fclose(file);
@@ -110,8 +121,12 @@ char *directoryName(const char *path)
     strncpy(path_copy,path,sizeof(path_copy));
     path_copy[sizeof(path_copy)-1] = '\0'; //Mi Assicuro che la stringa sia null-terminated
 
-    //Ottengo la directory cdel percorso
+    //Ottengo la directory del percorso
     char *dir = dirname(path_copy);
+    if(strcmp(dir,".") == 0)
+    {
+        dir = "./";
+    }
     return  dir;
 }
 
@@ -126,4 +141,23 @@ long getFileSize(const char *filename)
         fclose(file);
     }
     return  filesize;
+}
+
+int checkMemory(const size_t size)
+{
+    const char *path = "./"; //percorso corrente del server
+    struct statvfs buf;
+    if(statvfs(path,&buf) == 0)
+    {
+        unsigned long free_space = buf.f_bavail * buf.f_frsize; //spazio libero disponibile
+        if(free_space < size)
+        {
+            return 0;
+        }
+        else
+        {
+            return 1;
+        }
+    }
+    return 0;
 }

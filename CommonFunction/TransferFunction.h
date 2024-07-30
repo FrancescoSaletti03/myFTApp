@@ -4,15 +4,18 @@
 
 #ifndef TRANSFERFUNCTION_H
 #define TRANSFERFUNCTION_H
+#define ERR_MEMORY_FULL 3
 #define ERR_DIRECTORY_NOTFOUND 2
 #define ERR_FILE_NOTFOUND 1
 #define CONFIRM 0
 #define BUFFER_SIZE 51200
+#include <stdio.h>
 enum OPERATION{WRITE,READ,LIST};
 
 void readFile(int socket,char *path);
 void writeFile(int socket, char *path);
 char *directoryName(const char *path);
 long getFileSize(const char *filename);
+int checkMemory(const size_t size);
 
 #endif //TRANSFERFUNCTION_H
