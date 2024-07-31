@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
     {
         if(strcmp(argv[i],"-w") == 0 && (i+1 >= argc || argv[i+1][0] == '-')) { operazione = WRITE; }
         else if (strcmp(argv[i],"-r") == 0 && (i+1 >= argc || argv[i+1][0] == '-')) { operazione = READ; }
+        else if (strcmp(argv[i],"-l") == 0 && (i+1 >= argc || argv[i+1][0] == '-')) { operazione = LIST; }
         else if (strcmp(argv[i],"-a") == 0 && i+1 < argc && argv[i+1][0] != '-') { indirizzoIP = argv[i+1]; }
         else if (strcmp(argv[i],"-p") == 0 && i+1 < argc && argv[i+1][0] != '-') { porta = argv[i+1]; }
         else if (strcmp(argv[i],"-f") == 0 && i+1 < argc && argv[i+1][0] != '-') { from = argv[i+1]; }
@@ -92,6 +93,13 @@ int main(int argc, char *argv[])
         send(client_socket, &size, sizeof(size_t),0);
         send(client_socket,on, strlen(on),0);
         readFile(client_socket,from);
+    }
+    else if(operazione == LIST)
+    {
+        size_t size = strlen(from);
+        send(client_socket, &size, sizeof(size_t),0);
+        send(client_socket,from,strlen(from),0);
+        receiveList(client_socket);
     }
     close(client_socket);
 }

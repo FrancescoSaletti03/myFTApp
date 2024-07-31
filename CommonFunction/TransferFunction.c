@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/statvfs.h>
+#include <dirent.h>
 
 void readFile(int socket,char *path)
 {
@@ -37,21 +38,28 @@ void readFile(int socket,char *path)
         return;
     }
 
+    recv(socket,flag,sizeof(int),0);
+    if(*flag == ERR_FILE_NOTFOUND)
+    {
+        printf("Errore creazione file");
+        return;
+    }
+
     long size = getFileSize(path);
     send(socket,&size,sizeof(long),0);
-
-    size_t n;
-    while((n = fread(buffer,sizeof(char),BUFFER_SIZE,file)) > 0 )
-    {
-        send(socket,buffer,n,0);
-        bzero(buffer,BUFFER_SIZE);
-    }
 
     recv(socket,flag,sizeof(int),0);
     if(*flag == ERR_MEMORY_FULL)
     {
         printf("\nMemoria Piena\n");
         return;
+    }
+
+    size_t n;
+    while((n = fread(buffer,sizeof(char),BUFFER_SIZE,file)) > 0 )
+    {
+        send(socket,buffer,n,0);
+        bzero(buffer,BUFFER_SIZE);
     }
 
     printf("\ntrasmissione avvenuta\n");
@@ -85,9 +93,13 @@ void writeFile(int socket, char *path)
     FILE *file = fopen(path,"wb");
     if(file == NULL)
     {
+        *flag = ERR_FILE_NOTFOUND;
         printf("Errore creazione file");
+        send(socket,flag,sizeof(int),0);
         return;
     }
+    *flag = CONFIRM;
+    send(socket,flag,sizeof(int),0);
     long size;
     recv(socket,&size,sizeof(long),0);
     if(checkMemory(size) == 0)
@@ -97,6 +109,9 @@ void writeFile(int socket, char *path)
         printf("\nMemoria Piena\n");
         return;
     }
+    *flag = CONFIRM;
+    send(socket,flag,sizeof(int),0);
+
     size_t n = 0,temp;
     do
     {
@@ -111,6 +126,61 @@ void writeFile(int socket, char *path)
     printf("\nRicezione Avvenuta\n");
     return;
 
+}
+
+void sendList(int socket, char *path)
+{
+    struct dirent *de;// Dichiarazione di un puntatore per il contenuto della directory
+
+    DIR *dr= opendir(path);
+    int *flag = malloc(sizeof(int));
+    size_t len;
+
+
+    if(dr == NULL)
+    {
+        *flag = ERR_DIRECTORY_NOTFOUND;
+        printf("Impossivile aprire la directory");
+        send(socket,flag,sizeof(int),0);
+        return;
+    }
+
+    *flag = CONFIRM;
+    send(socket,flag,sizeof(int),0);
+
+    //usa readdir() per leggere il contenuto della directory
+    while((de = readdir(dr)) != NULL)
+    {
+        len = strlen(de->d_name);
+        send(socket,&len,sizeof(size_t),0);
+        send(socket,de->d_name,strlen(de->d_name),0);
+        bzero(de,sizeof(struct dirent));
+    }
+
+    closedir(dr);
+    return;
+}
+
+void receiveList(int socket)
+{
+    char stringa[FILENAME_MAX];
+    size_t len = 0;
+    int *flag = malloc(sizeof(int));
+    recv(socket,flag,sizeof(int),0);
+    if(*flag == ERR_DIRECTORY_NOTFOUND)
+    {
+        printf("Impossibile aprire la directory");
+        return;
+    }
+
+    while (recv(socket,&len,sizeof(size_t),0) > 0)
+    {
+        bzero(stringa,FILENAME_MAX);
+        recv(socket,stringa,len,0);
+        printf("%s\n",stringa);
+    }
+
+    return;
 }
 
 char *directoryName(const char *path)

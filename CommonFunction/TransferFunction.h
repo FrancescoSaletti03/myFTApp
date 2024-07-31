@@ -17,5 +17,7 @@ void writeFile(int socket, char *path);
 char *directoryName(const char *path);
 long getFileSize(const char *filename);
 int checkMemory(const size_t size);
+void sendList(int socket, char *path);
+void receiveList(int socket);
 
 #endif //TRANSFERFUNCTION_H
