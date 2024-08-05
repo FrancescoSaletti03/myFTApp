@@ -9,3 +9,9 @@
 1404	1433	1722331542430595206	CMakeFiles/myFTAServer.dir/ServerFunction/StartServer.c.o	9c8ce3f9a2efeaaf
 1	40	1722439925487160249	CMakeFiles/myFTAServer.dir/CommonFunction/TransferFunction.c.o	6af1dc2be57ceaa0
 41	59	1722439925527160144	myFTAServer	ab10dc89617f5063
+201	1438	1722867360749731794	CMakeFiles/myFTAServer.dir/CommonFunction/TransferFunction.c.o	6af1dc2be57ceaa0
+1438	1675	1722867361989737412	myFTAServer	ab10dc89617f5063
+1	41	1722867917488093516	CMakeFiles/myFTAServer.dir/CommonFunction/TransferFunction.c.o	6af1dc2be57ceaa0
+41	72	1722867917540093736	myFTAServer	ab10dc89617f5063
+3	56	1722867990144399038	CMakeFiles/myFTAServer.dir/CommonFunction/TransferFunction.c.o	6af1dc2be57ceaa0
+56	80	1722867990196399253	myFTAServer	ab10dc89617f5063

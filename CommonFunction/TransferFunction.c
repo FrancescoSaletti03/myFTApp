@@ -154,7 +154,6 @@ void sendList(int socket, char *path)
         len = strlen(de->d_name);
         send(socket,&len,sizeof(size_t),0);
         send(socket,de->d_name,strlen(de->d_name),0);
-        bzero(de,sizeof(struct dirent));
     }
 
     closedir(dr);
