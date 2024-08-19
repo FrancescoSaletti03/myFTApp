@@ -12,6 +12,7 @@
 #include <sys/stat.h>
 #include <sys/statvfs.h>
 #include <dirent.h>
+#include <errno.h>
 
 void readFile(int socket,char *path)
 {
@@ -79,7 +80,7 @@ void writeFile(int socket, char *path)
         return;
     }
 
-    if(stat(dir,&info) != 0)
+    if(create_path(dir)!= 0)//qua va la funzione
     {
         *flag = ERR_DIRECTORY_NOTFOUND;
         send(socket,flag,sizeof(int),0);
@@ -186,7 +187,7 @@ char *directoryName(const char *path)
 {
     char path_copy[strlen(path)];
 
-    // Copia del percorso perch+ dirname modifica la stringa passata
+    // Copia del percorso perchè dirname modifica la stringa passata
     strncpy(path_copy,path,sizeof(path_copy));
     path_copy[sizeof(path_copy)-1] = '\0'; //Mi Assicuro che la stringa sia null-terminated
 
@@ -228,5 +229,50 @@ int checkMemory(const size_t size)
             return 1;
         }
     }
+    return 0;
+}
+
+int create_path(const char *path)
+{
+    char temp[FILENAME_MAX];
+    char *p = NULL;
+    size_t len;
+
+    // Copio il path in una variabile Temporanea
+    snprintf(temp,sizeof(temp),"%s",path);
+    len = strlen(temp);
+
+    // Se il path termina con '/', lo rimuove
+    if(temp[len -1 ] == '/')
+    {
+        temp[len -1] = '\0';
+    }
+
+    for(p = temp + 1; *p ; p++)
+    {
+        if(*p == '/')
+        {
+            *p = '\0';
+
+            if(mkdir(temp,0777) < 0)
+            {
+                if( errno != EEXIST )
+                {
+                    perror("Errore creazione directory");
+                    return -1;
+                }
+            }
+            *p = '/';
+        }
+    }
+    if(mkdir(temp,0777) < 0)
+    {
+        if(errno != EEXIST )
+        {
+            perror("Errore creazione directory");
+            return -1;
+        }
+    }
+
     return 0;
 }

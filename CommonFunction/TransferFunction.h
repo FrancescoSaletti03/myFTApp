@@ -19,5 +19,6 @@ long getFileSize(const char *filename);
 int checkMemory(const size_t size);
 void sendList(int socket, char *path);
 void receiveList(int socket);
+int create_path(const char *path);
 
 #endif //TRANSFERFUNCTION_H
