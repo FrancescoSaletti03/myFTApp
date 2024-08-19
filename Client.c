@@ -10,7 +10,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
-#include <linux/limits.h>
+//#include <linux/limits.h>
+#include <limits.h>
 
 #include "CommonFunction/TransferFunction.h"
 int main(int argc, char *argv[])
@@ -77,7 +78,7 @@ int main(int argc, char *argv[])
         printf("\nfallimento connessione\n ");
         return  -1;
     }
-
+    //sleep(4);
     send(client_socket,&operazione,sizeof(enum OPERATION),0);
 
     if(operazione == READ)

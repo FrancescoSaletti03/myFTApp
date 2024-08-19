@@ -1,4 +1,4 @@
-/home/francesco-saletti/CLionProjects/myFTA/cmake-build-debug/CMakeFiles/myFTAClient.dir
-/home/francesco-saletti/CLionProjects/myFTA/cmake-build-debug/CMakeFiles/myFTAServer.dir
-/home/francesco-saletti/CLionProjects/myFTA/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/francesco-saletti/CLionProjects/myFTA/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/francescosaletti/CLionProjects/myFTApp/cmake-build-debug/CMakeFiles/myFTAClient.dir
+/Users/francescosaletti/CLionProjects/myFTApp/cmake-build-debug/CMakeFiles/myFTAServer.dir
+/Users/francescosaletti/CLionProjects/myFTApp/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/francescosaletti/CLionProjects/myFTApp/cmake-build-debug/CMakeFiles/rebuild_cache.dir

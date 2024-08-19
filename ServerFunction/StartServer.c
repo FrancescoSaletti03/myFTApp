@@ -24,16 +24,16 @@ int startSocket(struct sockaddr_in address)
         perror("fallimento creazione socket");
         exit(EXIT_FAILURE);
     }
-    if(setsockopt(new_socket,SOL_SOCKET,SO_REUSEADDR | SO_REUSEPORT,&opt,sizeof(opt)))
-    {
-        perror("fallimento impostazioni socket");
-        exit(EXIT_FAILURE);
-    }
-    /*if(setsockopt(new_socket,SOL_SOCKET,SO_REUSEPORT,&opt,sizeof(opt)))
+    /*if(setsockopt(new_socket,SOL_SOCKET,SO_REUSEADDR | SO_REUSEPORT,&opt,sizeof(opt)))
     {
         perror("fallimento impostazioni socket");
         exit(EXIT_FAILURE);
     }*/
+    if(setsockopt(new_socket,SOL_SOCKET,SO_REUSEPORT,&opt,sizeof(opt)))
+    {
+        perror("fallimento impostazioni socket");
+        exit(EXIT_FAILURE);
+    }
 
     if(bind(new_socket,(struct sockaddr*)&address,sizeof(address)) < 0 )
     {

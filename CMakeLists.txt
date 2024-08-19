@@ -11,4 +11,6 @@ add_executable(myFTAServer
         Server.c
         ServerFunction/StartServer.c
         CommonFunction/TransferFunction.c
-        CommonFunction/TransferFunction.h)
+        CommonFunction/TransferFunction.h
+        ServerFunction/ConcurrenceFunction.c
+        ServerFunction/ConcurrenceFunction.h)
