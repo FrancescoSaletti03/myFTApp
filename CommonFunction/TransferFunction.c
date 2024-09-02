@@ -80,11 +80,11 @@ void writeFile(int socket, char *path)
         return;
     }
 
-    if(create_path(dir)!= 0)//qua va la funzione
+    if(create_path(dir)!= 0)
     {
         *flag = ERR_DIRECTORY_NOTFOUND;
         send(socket,flag,sizeof(int),0);
-        printf("\nDirectory Non Trovata\n");
+        printf("\nImpossibile Creare la directory\n");
         return;
     }
 
@@ -141,7 +141,7 @@ void sendList(int socket, char *path)
     if(dr == NULL)
     {
         *flag = ERR_DIRECTORY_NOTFOUND;
-        printf("Impossivile aprire la directory");
+        printf("Impossibile aprire la directory");
         send(socket,flag,sizeof(int),0);
         return;
     }
@@ -185,11 +185,11 @@ void receiveList(int socket)
 
 char *directoryName(const char *path)
 {
-    char path_copy[strlen(path)];
+    char path_copy[PATH_MAX];
 
     // Copia del percorso perchè dirname modifica la stringa passata
-    strncpy(path_copy,path,sizeof(path_copy));
-    path_copy[sizeof(path_copy)-1] = '\0'; //Mi Assicuro che la stringa sia null-terminated
+    strncpy(path_copy,path,PATH_MAX);
+    path_copy[PATH_MAX-1] = '\0'; //Mi Assicuro che la stringa sia null-terminated
 
     //Ottengo la directory del percorso
     char *dir = dirname(path_copy);
@@ -234,45 +234,30 @@ int checkMemory(const size_t size)
 
 int create_path(const char *path)
 {
-    char temp[FILENAME_MAX];
-    char *p = NULL;
-    size_t len;
+    int result = 0;
 
-    // Copio il path in una variabile Temporanea
-    snprintf(temp,sizeof(temp),"%s",path);
-    len = strlen(temp);
-
-    // Se il path termina con '/', lo rimuove
-    if(temp[len -1 ] == '/')
+    //controllo se la directory esiste
+    if(access(path,F_OK)!=0)
     {
-        temp[len -1] = '\0';
-    }
+        char *fdir = malloc(PATH_MAX);
+        strcpy(fdir,path);
 
-    for(p = temp + 1; *p ; p++)
-    {
-        if(*p == '/')
+        if(strcmp(path,".")!=0)
         {
-            *p = '\0';
-
-            if(mkdir(temp,0777) < 0)
+            //creo la directory se non esiste
+            if(create_path(dirname(fdir)) == -1)
             {
-                if( errno != EEXIST )
-                {
-                    perror("Errore creazione directory");
-                    return -1;
-                }
+                result = -1;
             }
-            *p = '/';
         }
-    }
-    if(mkdir(temp,0777) < 0)
-    {
-        if(errno != EEXIST )
-        {
-            perror("Errore creazione directory");
-            return -1;
-        }
-    }
 
-    return 0;
+        //provo a crare la directory se fallisce, esce con un errore
+        if(mkdir(path,S_IRWXU | S_IRWXG) == -1 && errno != EEXIST)
+        {
+            perror("Errore creazione Directory");
+            result = -1;
+        }
+    }
+    
+    return result;
 }
