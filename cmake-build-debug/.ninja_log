@@ -33,3 +33,14 @@
 91	110	1725273228963300536	myFTAServer	45d9626f741514fe
 2	43	1725273459782251475	CMakeFiles/myFTAServer.dir/CommonFunction/TransferFunction.c.o	6af1dc2be57ceaa0
 44	67	1725273459822251273	myFTAServer	45d9626f741514fe
+693	25110	1725283554419798961	CMakeFiles/myFTAServer.dir/CommonFunction/TransferFunction.c.o	6af1dc2be57ceaa0
+25117	25562	1725283578840211188	myFTAServer	45d9626f741514fe
+72	522	1725283937402377670	CMakeFiles/myFTAServer.dir/CommonFunction/TransferFunction.c.o	6af1dc2be57ceaa0
+522	774	1725283937854385521	myFTAServer	45d9626f741514fe
+1	190	1725285671348732611	CMakeFiles/myFTAServer.dir/Server.c.o	30eb8705f1717adf
+190	261	1725285671524735701	CMakeFiles/myFTAServer.dir/ServerFunction/StartServer.c.o	9c8ce3f9a2efeaaf
+261	321	1725285671592736891	CMakeFiles/myFTAServer.dir/CommonFunction/TransferFunction.c.o	6af1dc2be57ceaa0
+322	360	1725285671660738072	CMakeFiles/myFTAServer.dir/ServerFunction/ConcurrenceFunction.c.o	d1fba933cf92b7c2
+360	381	1725285671700738777	myFTAServer	45d9626f741514fe
+2	66	1725285721017603232	CMakeFiles/myFTAServer.dir/CommonFunction/TransferFunction.c.o	6af1dc2be57ceaa0
+66	84	1725285721085604423	myFTAServer	45d9626f741514fe

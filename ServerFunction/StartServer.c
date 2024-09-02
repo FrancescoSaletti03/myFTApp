@@ -3,7 +3,6 @@
 //
 
 #include "StartServer.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
@@ -21,12 +20,12 @@ int startSocket(struct sockaddr_in address)
 
     if ((new_socket = socket(AF_INET,SOCK_STREAM,0)) < 0)
     {
-        perror("fallimento creazione socket");
+        perror("Fallimento creazione socket\n");
         exit(EXIT_FAILURE);
     }
     if(setsockopt(new_socket,SOL_SOCKET,SO_REUSEADDR | SO_REUSEPORT,&opt,sizeof(opt)))
     {
-        perror("fallimento impostazioni socket");
+        perror("Fallimento impostazioni socket\n");
         exit(EXIT_FAILURE);
     }
     /*if(setsockopt(new_socket,SOL_SOCKET,SO_REUSEPORT,&opt,sizeof(opt)))
@@ -37,13 +36,13 @@ int startSocket(struct sockaddr_in address)
 
     if(bind(new_socket,(struct sockaddr*)&address,sizeof(address)) < 0 )
     {
-        perror("binding fallito");
+        perror("Binding fallito\n");
         exit(EXIT_FAILURE);
     }
 
     if(listen(new_socket,SOMAXCONN) < 0)
     {
-        perror("fallimento nell'ascolto di richieste");
+        perror("Fallimento nell'ascolto di richieste\n");
         exit(EXIT_FAILURE);
     }
     return new_socket;
@@ -56,7 +55,7 @@ void workDirectory(char *pathDirectory)
      {
          if(mkdir(pathDirectory,0777) < 0)
          {
-             perror("path per la creazione della cartella non valido");
+             perror("Path per la creazione della cartella non valido\n");
              exit(EXIT_FAILURE);
          }
      }

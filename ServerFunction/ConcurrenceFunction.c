@@ -37,7 +37,7 @@ void* startTread(void* socket){
         {
             flag = ERR_FILE_NOTFOUND;
             send(c_socket,&flag,sizeof(int),0);
-            perror("\nFile Non Trovato\n");
+            perror("File Non Trovato\n");
         }
         else
         {   readLock(counters);
@@ -57,7 +57,7 @@ void* startTread(void* socket){
         if((counters = GetCounters(filePath)) == NULL)
         {
             flag = ERR_DIRECTORY_NOTFOUND;
-            printf("Impossibile aprire la directory");
+            printf("Impossibile aprire la directory\n");
             send(c_socket,&flag,sizeof(int),0);
         }
         else
@@ -188,6 +188,28 @@ struct Counters* checkAndCreateFile(char* filePath)
     writeUnlock(counters);
 
     return GetCounters(filePath);
+}
+void clearCounters(struct Counters *counters)
+{
+    pthread_mutex_lock(&mutexStruct);
+    struct Counters *previous = NULL;
+    if(head -> fd == counters -> fd)
+    {
+        head = head -> nextCounters;
+        free(counters);
+        return;
+    }
+    struct Counters *temp = head -> nextCounters;
+    previous = head;
+
+    while(temp!=NULL || temp -> fd != counters -> fd)
+    {   previous = previous -> nextCounters;
+        temp = temp -> nextCounters;
+    }
+    previous -> nextCounters = temp -> nextCounters;
+    free(temp);
+    readUnlock(counters);
+    pthread_mutex_unlock(&mutexStruct);
 }
 
 

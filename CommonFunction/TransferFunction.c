@@ -16,31 +16,31 @@
 
 void readFile(int socket,char *path)
 {
-    int *flag = malloc(sizeof(int));
+    int flag;
     unsigned char buffer[BUFFER_SIZE];
 
     FILE *file = fopen(path,"rb");
 
     if(file == NULL)
     {
-        *flag = ERR_FILE_NOTFOUND;
-        send(socket,flag,sizeof(int),0);
-        perror("\nFile Non Trovato\n");
+        flag = ERR_FILE_NOTFOUND;
+        send(socket,&flag,sizeof(int),0);
+        perror("File Non Trovato\n");
         return;
     }
 
-    *flag = CONFIRM;
-    send(socket,flag,sizeof(int),0);
+    flag = CONFIRM;
+    send(socket,&flag,sizeof(int),0);
 
-    recv(socket,flag,sizeof(int),0);
-    if(*flag == ERR_DIRECTORY_NOTFOUND)
+    recv(socket,&flag,sizeof(int),0);
+    if(flag == ERR_DIRECTORY_NOTFOUND)
     {
-        printf("\nDirectory Non Esistente\n");
+        printf("Directory Non Esistente\n");
         return;
     }
 
-    recv(socket,flag,sizeof(int),0);
-    if(*flag == ERR_FILE_NOTFOUND)
+    recv(socket,&flag,sizeof(int),0);
+    if(flag == ERR_FILE_NOTFOUND)
     {
         printf("Errore creazione file");
         return;
@@ -49,10 +49,10 @@ void readFile(int socket,char *path)
     long size = getFileSize(path);
     send(socket,&size,sizeof(long),0);
 
-    recv(socket,flag,sizeof(int),0);
-    if(*flag == ERR_MEMORY_FULL)
+    recv(socket,&flag,sizeof(int),0);
+    if(flag == ERR_MEMORY_FULL)
     {
-        printf("\nMemoria Piena\n");
+        printf("Memoria Piena\n");
         return;
     }
 
@@ -63,55 +63,55 @@ void readFile(int socket,char *path)
         bzero(buffer,BUFFER_SIZE);
     }
 
-    printf("\ntrasmissione avvenuta\n");
+    printf("Trasmissione avvenuta\n");
     fclose(file);
 }
 
 void writeFile(int socket, char *path)
 {
-    int *flag = malloc(sizeof(int));
+    int flag;
     unsigned char buffer[BUFFER_SIZE];
     char *dir =directoryName(path);
     struct stat info;
-    recv(socket,flag,sizeof(int),0);
-    if(*flag == ERR_FILE_NOTFOUND)
+    recv(socket,&flag,sizeof(int),0);
+    if(flag == ERR_FILE_NOTFOUND)
     {
-        printf("\nFile Non Trovato\n");
+        printf("File Non Trovato\n");
         return;
     }
 
     if(create_path(dir)!= 0)
     {
-        *flag = ERR_DIRECTORY_NOTFOUND;
-        send(socket,flag,sizeof(int),0);
-        printf("\nImpossibile Creare la directory\n");
+        flag = ERR_DIRECTORY_NOTFOUND;
+        send(socket,&flag,sizeof(int),0);
+        printf("Impossibile Creare la directory\n");
         return;
     }
 
-    *flag = CONFIRM;
-    send(socket,flag,sizeof(int),0);
+    flag = CONFIRM;
+    send(socket,&flag,sizeof(int),0);
 
     FILE *file = fopen(path,"wb");
     if(file == NULL)
     {
-        *flag = ERR_FILE_NOTFOUND;
+        flag = ERR_FILE_NOTFOUND;
         printf("Errore creazione file");
-        send(socket,flag,sizeof(int),0);
+        send(socket,&flag,sizeof(int),0);
         return;
     }
-    *flag = CONFIRM;
-    send(socket,flag,sizeof(int),0);
+    flag = CONFIRM;
+    send(socket,&flag,sizeof(int),0);
     long size;
     recv(socket,&size,sizeof(long),0);
     if(checkMemory(size) == 0)
     {
-        *flag = ERR_MEMORY_FULL;
-        send(socket,flag,sizeof(int),0);
-        printf("\nMemoria Piena\n");
+        flag = ERR_MEMORY_FULL;
+        send(socket,&flag,sizeof(int),0);
+        printf("Memoria Piena\n");
         return;
     }
-    *flag = CONFIRM;
-    send(socket,flag,sizeof(int),0);
+    flag = CONFIRM;
+    send(socket,&flag,sizeof(int),0);
 
     size_t n = 0,temp;
     do
@@ -124,7 +124,7 @@ void writeFile(int socket, char *path)
     while(n < size);
     fclose(file);
 
-    printf("\nRicezione Avvenuta\n");
+    printf("Ricezione Avvenuta\n");
     return;
 
 }
@@ -134,20 +134,20 @@ void sendList(int socket, char *path)
     struct dirent *de;// Dichiarazione di un puntatore per il contenuto della directory
 
     DIR *dr= opendir(path);
-    int *flag = malloc(sizeof(int));
+    int flag;
     size_t len;
 
 
     if(dr == NULL)
     {
-        *flag = ERR_DIRECTORY_NOTFOUND;
-        printf("Impossibile aprire la directory");
-        send(socket,flag,sizeof(int),0);
+        flag = ERR_DIRECTORY_NOTFOUND;
+        printf("Impossibile aprire la directory\n");
+        send(socket,&flag,sizeof(int),0);
         return;
     }
 
-    *flag = CONFIRM;
-    send(socket,flag,sizeof(int),0);
+    flag = CONFIRM;
+    send(socket,&flag,sizeof(int),0);
 
     //usa readdir() per leggere il contenuto della directory
     while((de = readdir(dr)) != NULL)
@@ -165,11 +165,11 @@ void receiveList(int socket)
 {
     char stringa[FILENAME_MAX];
     size_t len = 0;
-    int *flag = malloc(sizeof(int));
-    recv(socket,flag,sizeof(int),0);
-    if(*flag == ERR_DIRECTORY_NOTFOUND)
+    int flag;
+    recv(socket,&flag,sizeof(int),0);
+    if(flag == ERR_DIRECTORY_NOTFOUND)
     {
-        printf("Impossibile aprire la directory");
+        printf("Impossibile aprire la directory\n");
         return;
     }
 
@@ -254,10 +254,10 @@ int create_path(const char *path)
         //provo a crare la directory se fallisce, esce con un errore
         if(mkdir(path,S_IRWXU | S_IRWXG) == -1 && errno != EEXIST)
         {
-            perror("Errore creazione Directory");
+            perror("Errore creazione Directory\n");
             result = -1;
         }
+        free(fdir);
     }
-    
     return result;
 }

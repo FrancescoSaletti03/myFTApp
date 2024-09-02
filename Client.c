@@ -10,9 +10,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
-//#include <linux/limits.h>
-#include <limits.h>
-
 #include "CommonFunction/TransferFunction.h"
 int main(int argc, char *argv[])
 {
@@ -20,7 +17,7 @@ int main(int argc, char *argv[])
     char *indirizzoIP = NULL, *porta = NULL, *from = NULL, *on = NULL;
     if(!(argc == 10 || argc == 8))
     {
-        printf("formato non valido \n");
+        printf("Formato non valido \n");
         exit(EXIT_FAILURE);
     }
 
@@ -36,7 +33,7 @@ int main(int argc, char *argv[])
         else if(argv[i][0] != '-' && (i+1 >= argc || argv[i+1][0] == '-')) {}
         else
         {
-            printf("formato non valido \n");
+            printf("Formato non valido\n");
             exit(EXIT_FAILURE);
         }
 
@@ -56,7 +53,7 @@ int main(int argc, char *argv[])
     char *check;
     u_long portaInt = strtoll(porta,&check,10);
     if(*check != '\0'){
-        perror("porta non valida");
+        perror("Porta non valida\n");
         exit(EXIT_FAILURE);
     }
 
@@ -64,18 +61,18 @@ int main(int argc, char *argv[])
 
     if(inet_pton(AF_INET,indirizzoIP,&sAddress.sin_addr) <=0)
     {
-        printf("ip non valido");
+        printf("Inidirizzo Ip non valido\n");
         return -1;
     }
 
     if ((client_socket = socket(AF_INET,SOCK_STREAM,0)) < 0)
     {
-        printf("\nfallimento creazione socket\n ");
+        printf("Fallimento creazione socket\n ");
         return  -1;
     }
     if((stato = connect(client_socket,(struct sockaddr*)&sAddress,aAddresslen)) < 0)
     {
-        printf("\nfallimento connessione\n ");
+        printf("Fallimento connessione\n ");
         return  -1;
     }
     //sleep(4);
