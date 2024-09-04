@@ -59,6 +59,8 @@ int startSocket(struct sockaddr_in address)
 void workDirectory(char *pathDirectory)
 {
      DIR* directory = opendir(pathDirectory);
+
+     //controllo se la directory esiste o meno, nel caso la creo.
      if(ENOENT == errno)
      {
          if(mkdir(pathDirectory,0777) < 0)
@@ -71,5 +73,6 @@ void workDirectory(char *pathDirectory)
      {
          closedir(directory);
      }
+     //imposto la cartella come cartella di lavoro
      chdir(pathDirectory);
 }
