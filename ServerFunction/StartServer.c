@@ -62,6 +62,7 @@ void workDirectory(char *pathDirectory)
          {
              perror("Path per la creazione della cartella non valido\n");
              exit(EXIT_FAILURE);
+
          }
      }
      else

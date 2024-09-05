@@ -6,6 +6,7 @@
 #define MYFTA_CONCURRENCEFUNCTION_H
 #include <pthread.h>
 
+
 void* startTread(void* c_socket);
 struct Counters* GetCounters(char* filePath);
 struct Counters* checkAndCreateFile(char* filePath);

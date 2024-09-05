@@ -35,7 +35,7 @@ void* startTread(void* socket){
     //controllo quale operazione deve essere eseguita
     if(operazione == READ)
     {
-        //vado ad inizializzare un'istanza della mia struttura per la gestione della concorrenza
+        //vado ad inizializzace un'istanza della mia struttura per la gestione della concorrenza
         if((counters = GetCounters(filePath))==NULL)
         {
             //se non si crea l'istanza, genero un errore
@@ -53,6 +53,7 @@ void* startTread(void* socket){
 
             //unlock sul file di tipo read e aggiornamento dell'istanza della struttura
             readUnlock(counters);
+            //clearCounters(counters);
         }
     }
     else if(operazione == WRITE)
@@ -68,6 +69,7 @@ void* startTread(void* socket){
 
         //lock sul file di tipo write e aggiornamento dell'istanza della struttura
         writeUnlock(counters);
+        //clearCounters(counters);
     }
     else if(operazione == LIST)
     {
@@ -88,9 +90,9 @@ void* startTread(void* socket){
 
             //unlock sul file di tipo read e aggiornamento dell'istanza della struttura
             readUnlock(counters);
+            //clearCounters(counters);
         }
     }
-    clearCounters(counters);
     close(c_socket);
 
     return NULL;
@@ -101,12 +103,13 @@ void readLock(struct Counters *counters)
     pthread_mutex_lock(& counters -> mutexCounter);
     counters -> usage +=1;
 
+    counters -> readPending += 1;
     //attendo che sia possibile accettare nuove richieste di lettura
     while(counters -> AcceptRequest == 0)
     {
         pthread_cond_wait(& counters -> wake, & counters -> mutexCounter);
     }
-    counters -> readPending += 1;
+    //counters -> readPending += 1;
 
     //chiedo il read-lock sul semaforo associato al file
     pthread_rwlock_rdlock(& counters->mutexFile);
@@ -139,7 +142,7 @@ void writeLock(struct Counters *counters)
     counters -> usage +=1;
 
     //attendo che non ci siano richieste di lettura o che quelle completate siano maggiori di 3, prima di fare la write
-    while(counters->readPending > 0 || counters->readCompleted > 3)
+    while(counters->readPending > 0 && counters->readCompleted < 3)
     {
         pthread_cond_wait(& counters -> wake, & counters -> mutexCounter);
     }
@@ -148,6 +151,7 @@ void writeLock(struct Counters *counters)
     //faccio write-lock sul file associato
     pthread_rwlock_wrlock(& counters -> mutexFile);
     pthread_mutex_unlock(& counters  -> mutexCounter);
+    pthread_cond_signal(&counters -> wake);
 }
 
 void writeUnlock(struct Counters *counters)
@@ -161,6 +165,7 @@ void writeUnlock(struct Counters *counters)
 
     pthread_rwlock_unlock(& counters -> mutexFile);
     pthread_mutex_unlock(& counters  -> mutexCounter);
+    pthread_cond_signal(&counters -> wake);
 }
 
 struct Counters* GetCounters(char* filePath)
@@ -185,6 +190,9 @@ struct Counters* GetCounters(char* filePath)
     temp = malloc(sizeof(struct Counters));
     temp -> fd = info.st_ino;
     temp -> AcceptRequest = 1;
+    temp -> usage = 0;
+    temp -> readPending = 0;
+    temp -> readCompleted = 0;
     pthread_mutex_init(& temp->mutexCounter,NULL);
     pthread_rwlock_init(& temp->mutexFile, NULL);
     pthread_cond_init(& temp->wake, NULL);
@@ -249,6 +257,7 @@ void clearCounters(struct Counters *counters)
     }
     previous -> nextCounters = temp -> nextCounters;
     free(temp);
+    temp = NULL;
     readUnlock(counters);
     pthread_mutex_unlock(&mutexStruct);
 }

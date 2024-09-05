@@ -66,6 +66,7 @@ void readFile(int socket,char *path)
 
     printf("Trasmissione avvenuta\n");
     fclose(file);
+    return;
 }
 
 void writeFile(int socket, char *path)
