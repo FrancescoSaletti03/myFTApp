@@ -90,6 +90,7 @@ void* startTread(void* socket){
             readUnlock(counters);
         }
     }
+    clearCounters(counters);
     close(c_socket);
 
     return NULL;

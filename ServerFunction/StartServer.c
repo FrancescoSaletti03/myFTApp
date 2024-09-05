@@ -32,11 +32,6 @@ int startSocket(struct sockaddr_in address)
         perror("Fallimento impostazioni socket\n");
         exit(EXIT_FAILURE);
     }
-    /*if(setsockopt(new_socket,SOL_SOCKET,SO_REUSEPORT,&opt,sizeof(opt)))
-    {
-        perror("fallimento impostazioni socket");
-        exit(EXIT_FAILURE);
-    }*/
 
     //collego la socket del server, all`Indirizzo Ip e alla Porta contenuti nella struct sockaddr
     if(bind(new_socket,(struct sockaddr*)&address,sizeof(address)) < 0 )

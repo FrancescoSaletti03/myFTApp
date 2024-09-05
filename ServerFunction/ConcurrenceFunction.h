@@ -13,6 +13,7 @@ void readLock(struct Counters *counters);
 void readUnlock(struct Counters *counters);
 void writeLock(struct Counters *counters);
 void writeUnlock(struct Counters *counters);
+void clearCounters(struct Counters *counters);
 
 struct Counters
 {

@@ -13,6 +13,7 @@
 #include <sys/statvfs.h>
 #include <dirent.h>
 #include <errno.h>
+#include <limits.h>
 
 void readFile(int socket,char *path)
 {
