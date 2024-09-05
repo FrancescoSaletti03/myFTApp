@@ -21,9 +21,10 @@ void readFile(int socket,char *path)
     unsigned char buffer[BUFFER_SIZE];
 
     FILE *file = fopen(path,"rb");
-
+    //controllo se il file da leggere esiste
     if(file == NULL)
     {
+        //se non esiste, lo comunico all´altro
         flag = ERR_FILE_NOTFOUND;
         send(socket,&flag,sizeof(int),0);
         perror("File Non Trovato\n");
@@ -34,6 +35,7 @@ void readFile(int socket,char *path)
     send(socket,&flag,sizeof(int),0);
 
     recv(socket,&flag,sizeof(int),0);
+    //controllo se è stato inviato un flag di errore per la directory
     if(flag == ERR_DIRECTORY_NOTFOUND)
     {
         printf("Directory Non Esistente\n");
@@ -41,16 +43,20 @@ void readFile(int socket,char *path)
     }
 
     recv(socket,&flag,sizeof(int),0);
+    //controllo se è stato inviato un flag di errore per il nuovo file creato
     if(flag == ERR_FILE_NOTFOUND)
     {
         printf("Errore creazione file");
         return;
     }
 
+    //comunico la dimensione del mio file
     long size = getFileSize(path);
     send(socket,&size,sizeof(long),0);
 
     recv(socket,&flag,sizeof(int),0);
+
+    //controllo se è stato inviato un flag di errore per la memoria esaurita
     if(flag == ERR_MEMORY_FULL)
     {
         printf("Memoria Piena\n");
@@ -58,6 +64,8 @@ void readFile(int socket,char *path)
     }
 
     size_t n;
+
+    //inizio il trasferimento del file e lo invio
     while((n = fread(buffer,sizeof(char),BUFFER_SIZE,file)) > 0 )
     {
         send(socket,buffer,n,0);
@@ -76,12 +84,13 @@ void writeFile(int socket, char *path)
     char *dir =directoryName(path);
     struct stat info;
     recv(socket,&flag,sizeof(int),0);
+    //controllo se è stato inviato un flag di errore per il file non trovato
     if(flag == ERR_FILE_NOTFOUND)
     {
         printf("File Non Trovato\n");
         return;
     }
-
+    //provo a creare il path di destinazione, se non ci riesco, lo comunico all`altro
     if(create_path(dir)!= 0)
     {
         flag = ERR_DIRECTORY_NOTFOUND;
@@ -93,6 +102,7 @@ void writeFile(int socket, char *path)
     flag = CONFIRM;
     send(socket,&flag,sizeof(int),0);
 
+    //provo a creare il file di destinazione, se non ci riesco, lo comunico all`altro
     FILE *file = fopen(path,"wb");
     if(file == NULL)
     {
@@ -105,6 +115,7 @@ void writeFile(int socket, char *path)
     send(socket,&flag,sizeof(int),0);
     long size;
     recv(socket,&size,sizeof(long),0);
+    //controllo se ho spazio in memoria, se non c`è, lo comunico all`altro
     if(checkMemory(size) == 0)
     {
         flag = ERR_MEMORY_FULL;
@@ -116,6 +127,7 @@ void writeFile(int socket, char *path)
     send(socket,&flag,sizeof(int),0);
 
     size_t n = 0,temp;
+    //inizio il processo di ricezione del file
     do
     {
         temp = recv(socket,buffer,BUFFER_SIZE,0);
@@ -139,7 +151,7 @@ void sendList(int socket, char *path)
     int flag;
     size_t len;
 
-
+    //controllo se la directory viene aperta o meno, nel caso lo comunico all`altro
     if(dr == NULL)
     {
         flag = ERR_DIRECTORY_NOTFOUND;
@@ -151,7 +163,7 @@ void sendList(int socket, char *path)
     flag = CONFIRM;
     send(socket,&flag,sizeof(int),0);
 
-    //usa readdir() per leggere il contenuto della directory
+    //usa readdir() per leggere il contenuto della directory e lo invio
     while((de = readdir(dr)) != NULL)
     {
         len = strlen(de->d_name);
@@ -160,6 +172,7 @@ void sendList(int socket, char *path)
     }
 
     closedir(dr);
+    printf("Contenuto Directory inviato\n");
     return;
 }
 
@@ -169,12 +182,13 @@ void receiveList(int socket)
     size_t len = 0;
     int flag;
     recv(socket,&flag,sizeof(int),0);
+    //controllo se è stato inviato un flag di directory non trovata
     if(flag == ERR_DIRECTORY_NOTFOUND)
     {
         printf("Impossibile aprire la directory\n");
         return;
     }
-
+    //inizio a ricevere e stampare il contenuto della directory
     while (recv(socket,&len,sizeof(size_t),0) > 0)
     {
         bzero(stringa,FILENAME_MAX);
@@ -219,6 +233,8 @@ int checkMemory(const size_t size)
 {
     const char *path = "./"; //percorso corrente del server
     struct statvfs buf;
+
+    //controllo se la directory esiste o meno, nel caso ritorno 0 (codice di errore)
     if(statvfs(path,&buf) == 0)
     {
         unsigned long free_space = buf.f_bavail * buf.f_frsize; //spazio libero disponibile
@@ -246,7 +262,7 @@ int create_path(const char *path)
 
         if(strcmp(path,".")!=0)
         {
-            //creo la directory se non esiste
+            //creo  ricorsivamente la directory se non esiste
             if(create_path(dirname(fdir)) == -1)
             {
                 result = -1;
